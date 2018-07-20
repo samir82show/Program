@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:head>
+        <title>Facelet Title</title>
+    </h:head>
+    <h:body>
+
+        <f:view>
+
+
+            <h:form>
+                <h1><h:outputText value="Create/Edit"/></h1>
+                <h:panelGrid columns="2">
+                    <h:outputLabel value="Id:" for="id" />
+                    <h:inputText id="id" value="#{matchController.competitionMatch.id}" title="Id" required="true" requiredMessage="The Id field is required."/>
+                    <h:outputLabel value="Score1:" for="score1" />
+                    <h:inputText id="score1" value="#{matchController.competitionMatch.score1}" title="Score1" />
+                    <h:outputLabel value="Score2:" for="score2" />
+                    <h:inputText id="score2" value="#{matchController.competitionMatch.score2}" title="Score2" />
+                    <h:outputLabel value="Status:" for="status" />
+                    <h:selectOneMenu id="status" value="#{matchController.competitionMatch.status}" title="Status" >
+                        <f:selectItem itemLabel="Running" itemValue="1"/>
+                        <f:selectItem itemLabel="Completed" itemValue="0"/>
+                    </h:selectOneMenu>
+                    <h:outputLabel value="EpisodeId:" for="episodeId" />
+                    <h:selectOneMenu id="episodeId" value="#{matchController.competitionMatch.episodeId}" title="EpisodeId" >
+                        <f:selectItems value="#{episodeController.itemsAvailableSelectOne}"/>
+                    </h:selectOneMenu>
+                    <h:outputLabel value="School1Name:" for="school1Name" />
+                    <h:selectOneMenu id="school1Name" value="#{matchController.competitionMatch.school1Name}" title="School1Name" >
+                        <f:selectItems value="#{schoolController.itemsAvailableSelectOne}"/>
+                    </h:selectOneMenu>
+                    <h:outputLabel value="School2Name:" for="school2Name" />
+                    <h:selectOneMenu id="school2Name" value="#{matchController.competitionMatch.school2Name}" title="School2Name" >
+                        <f:selectItems value="#{schoolController.itemsAvailableSelectOne}"/>
+                    </h:selectOneMenu>
+                    <h:commandButton value="Save" action="#{matchController.edit()}"/>
+                </h:panelGrid>
+            </h:form>
+            <h:link value="List Competitions" outcome="list"/>
+        </f:view>
+
+
+    </h:body>
+</html>
+
