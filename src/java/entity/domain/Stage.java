@@ -99,7 +99,7 @@ public class Stage implements Serializable {
 
     @Override
     public String toString() {
-        return "entity.domain.Stage[ id=" + id + " ]";
+        return name;
     }
     
 }

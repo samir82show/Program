@@ -5,7 +5,9 @@
  */
 package facade;
 
-import entity.domain.CompetitionMatch;
+import entity.domain.Episode;
+import entity.domain.Question;
+import entity.domain.Stage;
 import java.util.List;
 import javax.persistence.EntityManager;
 
@@ -28,6 +30,7 @@ public abstract class AbstractFacade<T> {
     }
 
     public void edit(T entity) {
+//        getEntityManager().getEntityManagerFactory().getCache().evictAll();
         getEntityManager().merge(entity);
     }
 
@@ -38,11 +41,27 @@ public abstract class AbstractFacade<T> {
     public T find(Object id) {
         return getEntityManager().find(entityClass, id);
     }
-    
+
     public List<Object> findRunning() {
         return getEntityManager()
                 .createNamedQuery("CompetitionMatch.findByStatus")
                 .setParameter("status", 1)
+                .getResultList();
+    }
+
+    public List<T> findQuestionByEpisodeStageStatus(Episode episode, Stage stage) {
+        getEntityManager().getEntityManagerFactory().getCache().evictAll();
+        return getEntityManager().createNamedQuery("Question.findByEpisodeStageHide")
+                .setParameter("episodeId", episode)
+                .setParameter("stageId", stage)
+                .setParameter("hide", "0")
+                .getResultList();
+    }
+    
+    public List<T> findCompetitionMatchSorted() {
+        getEntityManager().getEntityManagerFactory().getCache().evictAll();
+        return getEntityManager()
+                .createNamedQuery("CompetitionMatch.findAllSorted")
                 .getResultList();
     }
     
@@ -68,5 +87,5 @@ public abstract class AbstractFacade<T> {
         javax.persistence.Query q = getEntityManager().createQuery(cq);
         return ((Long) q.getSingleResult()).intValue();
     }
-    
+
 }

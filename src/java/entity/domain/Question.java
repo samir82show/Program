@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package entity.domain;
 
 import java.io.Serializable;
@@ -19,10 +14,6 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- *
- * @author sawad
- */
 @Entity
 @Table(name = "question")
 @XmlRootElement
@@ -32,6 +23,7 @@ import javax.xml.bind.annotation.XmlRootElement;
     , @NamedQuery(name = "Question.findByContent", query = "SELECT q FROM Question q WHERE q.content = :content")
     , @NamedQuery(name = "Question.findByDirectanswer", query = "SELECT q FROM Question q WHERE q.directanswer = :directanswer")
     , @NamedQuery(name = "Question.findByHide", query = "SELECT q FROM Question q WHERE q.hide = :hide")
+    , @NamedQuery(name = "Question.findByEpisodeStageHide", query = "SELECT q FROM Question q WHERE q.episodeId = :episodeId AND q.stageId = :stageId AND q.hide = :hide ORDER BY q.id ASC")
     , @NamedQuery(name = "Question.findByImagevideopath", query = "SELECT q FROM Question q WHERE q.imagevideopath = :imagevideopath")
     , @NamedQuery(name = "Question.findByMultiplecorrectanswer", query = "SELECT q FROM Question q WHERE q.multiplecorrectanswer = :multiplecorrectanswer")
     , @NamedQuery(name = "Question.findByMultipletruefalsedirectanswer", query = "SELECT q FROM Question q WHERE q.multipletruefalsedirectanswer = :multipletruefalsedirectanswer")

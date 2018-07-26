@@ -29,6 +29,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "CompetitionMatch.findAll", query = "SELECT c FROM CompetitionMatch c")
+    , @NamedQuery(name = "CompetitionMatch.findAllSorted", query = "SELECT c FROM CompetitionMatch c order by c.id ASC")
     , @NamedQuery(name = "CompetitionMatch.findById", query = "SELECT c FROM CompetitionMatch c WHERE c.id = :id")
     , @NamedQuery(name = "CompetitionMatch.findByScore1", query = "SELECT c FROM CompetitionMatch c WHERE c.score1 = :score1")
     , @NamedQuery(name = "CompetitionMatch.findByScore2", query = "SELECT c FROM CompetitionMatch c WHERE c.score2 = :score2")
@@ -42,13 +43,13 @@ public class CompetitionMatch implements Serializable {
     @Column(name = "id")
     private Long id;
     @Column(name = "score1")
-    private Integer score1;
+    private Long score1;
     @Column(name = "score2")
-    private Integer score2;
+    private Long score2;
     @Column(name = "status")
     private Integer status;
     @Column(name = "current_stage")
-    private Integer currentStage;
+    private Long currentStage;
     @JoinColumn(name = "episode_id", referencedColumnName = "id")
     @ManyToOne
     private Episode episodeId;
@@ -66,11 +67,11 @@ public class CompetitionMatch implements Serializable {
         this.id = id;
     }
 
-    public Integer getCurrentStage() {
+    public Long getCurrentStage() {
         return currentStage;
     }
 
-    public void setCurrentStage(Integer currentStage) {
+    public void setCurrentStage(Long currentStage) {
         this.currentStage = currentStage;
     }
 
@@ -82,19 +83,19 @@ public class CompetitionMatch implements Serializable {
         this.id = id;
     }
 
-    public Integer getScore1() {
+    public Long getScore1() {
         return score1;
     }
 
-    public void setScore1(Integer score1) {
+    public void setScore1(Long score1) {
         this.score1 = score1;
     }
 
-    public Integer getScore2() {
+    public Long getScore2() {
         return score2;
     }
 
-    public void setScore2(Integer score2) {
+    public void setScore2(Long score2) {
         this.score2 = score2;
     }
 

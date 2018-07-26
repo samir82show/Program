@@ -39,7 +39,7 @@ public class Questionpoint implements Serializable {
     @Column(name = "id")
     private Long id;
     @Column(name = "points")
-    private Integer points;
+    private Long points;
     @OneToMany(mappedBy = "questionpointId")
     private Collection<Question> questionCollection;
 
@@ -58,11 +58,11 @@ public class Questionpoint implements Serializable {
         this.id = id;
     }
 
-    public Integer getPoints() {
+    public Long getPoints() {
         return points;
     }
 
-    public void setPoints(Integer points) {
+    public void setPoints(Long points) {
         this.points = points;
     }
 
@@ -97,7 +97,7 @@ public class Questionpoint implements Serializable {
 
     @Override
     public String toString() {
-        return "entity.domain.Questionpoint[ id=" + id + " ]";
+        return points.toString();
     }
     
 }

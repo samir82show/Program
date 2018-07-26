@@ -11,7 +11,7 @@
         <f:view>
             <h:form>
                 <h1><h:outputText value="List"/></h1>
-                <h:dataTable value="#{matchController.competitions}" var="item" border="1">
+                <h:dataTable value="#{matchController.competitionMatches}" var="item" border="1">
                     <h:column>
                         <f:facet name="header">
                             <h:outputText value="Id"/>
@@ -67,13 +67,14 @@
                         <h:outputText value=" "/>
                         <h:commandLink action="#{matchController.edit(item)}" value="Edit"/>
                         <h:outputText value=" "/>
-                        <h:commandLink action="#{matchController.delete(item)}" value="Delete"/>
+                        <h:commandLink action="#{matchController.delete(item)}" value="Delete">
+                            <f:ajax execute="@form" render="@form"/>
+                        </h:commandLink>
                     </h:column>
                 </h:dataTable>
-                <h:commandLink action="#{matchController.goIndex()}" value="Create New"/>
             </h:form>
+            <h:link outcome="index" value="Create"/>
         </f:view>
-
 
 
     </h:body>

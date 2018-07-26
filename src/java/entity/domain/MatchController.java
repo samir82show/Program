@@ -8,6 +8,13 @@ package entity.domain;
 import entity.domain.util.JsfUtil;
 import facade.CompetitionMatchFacade;
 import facade.EpisodeFacade;
+import facade.QuestionFacade;
+import facade.StageFacade;
+import java.io.BufferedWriter;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import javax.inject.Named;
 import javax.enterprise.context.SessionScoped;
 import java.io.Serializable;
@@ -30,83 +37,146 @@ public class MatchController implements Serializable {
     private CompetitionMatchFacade competitionMatchFacade;
     @EJB
     private EpisodeFacade episodeFacade;
-
+    @EJB
+    private QuestionFacade questionFacade;
+    @EJB
+    private StageFacade stageFacade;
     @Inject
     private CompetitionMatch competitionMatch;
     @Inject
     private Question question;
+    @Inject
+    private Episode episode;
+    private List<Question> questions;
+    private List<CompetitionMatch> competitionsList;
+    private String result;
 
     @PostConstruct
     public void init() {
-        flushMatch();
-        List<Object> competitionList = competitionMatchFacade.findRunning();
-        if (!competitionList.isEmpty()) {
-            this.competitionMatch = (CompetitionMatch) competitionList.get(0);
-        }
+        competitionMatch.setScore1(0L);
+        competitionMatch.setScore2(0L);
     }
 
-    public Question getQuestion() {
-        return question;
-    }
-
-    public Episode findEpisode() {
-        return (Episode) episodeFacade.find(1L);
-    }
-
-//    public String findQuestion() {
-//        return ((Question) questionFacade.findQuestion()).getContent();
-//    }
-    public String create() {
-        System.out.println("Current Stage: " + competitionMatch.getCurrentStage());
-        if (competitionMatch.getCurrentStage() == null) {
-            competitionMatch.setCurrentStage(1);
-        } else {
-            
-        }
+    public String startMatch() {
+//        flushMatch();
+        competitionMatch.setCurrentStage(1L);
+        questions = questionFacade
+                .findQuestionByEpisodeStageStatus(
+                        episodeFacade.find(competitionMatch.getEpisodeId().getId()), stageFacade.find(competitionMatch.getCurrentStage())
+                );
+        question = questions.get(0);
         competitionMatch.setStatus(1);
         competitionMatchFacade.create(competitionMatch);
-        return "question_page";
+        createXml();
+        return "stage1?faces-redirect=true";
     }
 
-    public String stopMatch() {
-        competitionMatch.setStatus(0);
-        competitionMatchFacade.edit(competitionMatch);
-        flushMatch();
-        return "index";
+    public String correctAnswer1() {
+        long stage = competitionMatch.getCurrentStage();
+        question.setHide("1");
+        questionFacade.edit(question);
+        questions = questionFacade
+                .findQuestionByEpisodeStageStatus(
+                        episodeFacade.find(competitionMatch.getEpisodeId().getId()), stageFacade.find(competitionMatch.getCurrentStage())
+                );
+        if (!questions.isEmpty() && competitionMatch.getCurrentStage() < 6) {
+            competitionMatch.setScore1(new Long(competitionMatch.getScore1() + question.getQuestionpointId().getPoints()));
+            question = questions.get(0);
+        } else if (!questions.isEmpty() && competitionMatch.getCurrentStage() == 6) {
+            competitionMatch.setScore1(new Long(competitionMatch.getScore1() + question.getQuestionpointId().getPoints()));
+
+            questions = questionFacade
+                    .findQuestionByEpisodeStageStatus(
+                            episodeFacade.find(competitionMatch.getEpisodeId().getId()), stageFacade.find(competitionMatch.getCurrentStage())
+                    );
+            question = questions.get(0);
+        } else if (questions.isEmpty() && competitionMatch.getCurrentStage() < 6) {
+            competitionMatch.setScore1(new Long(competitionMatch.getScore1() + question.getQuestionpointId().getPoints()));
+
+            competitionMatch.setCurrentStage(new Long(competitionMatch.getCurrentStage() + 1));
+            questions = questionFacade
+                    .findQuestionByEpisodeStageStatus(
+                            episodeFacade.find(competitionMatch.getEpisodeId().getId()), stageFacade.find(competitionMatch.getCurrentStage())
+                    );
+            question = questions.get(0);
+        } else if (questions.isEmpty() && competitionMatch.getCurrentStage() == 6) {
+            result = "End of Episode.";
+        }
+        createXml();
+        if (stage == competitionMatch.getCurrentStage()) {
+            return null;
+        }
+        return "stage" + competitionMatch.getCurrentStage() + "?faces-redirect=true";
+    }
+
+    public void flushMatch() {
+        competitionMatch.setEpisodeId(null);
+        competitionMatch.setSchool1Name(null);
+        competitionMatch.setSchool2Name(null);
+        competitionMatch.setScore1(0L);
+        competitionMatch.setScore2(0L);
+        competitionMatch.setStatus(null);
+    }
+
+    public void createXml() {
+        try {
+            BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("c:\\data\\rayantv.xml"), "UTF-8"));
+            bufferedWriter.write("<?xml version=\"1.0\"?>\n");
+            bufferedWriter.write("<root>\n");
+            bufferedWriter.write("<question>" + question.getContent() + "</question>\n");
+            bufferedWriter.write("<points>" + question.getQuestionpointId().getPoints() + "</points>\n");
+            bufferedWriter.write("<option1>" + question.getOption1() + "</option1>\n");
+            bufferedWriter.write("<option2>" + question.getOption1() + "</option2>\n");
+            bufferedWriter.write("<option3>" + question.getOption1() + "</option3>\n");
+            bufferedWriter.write("<directAnswer>" + question.getDirectanswer() + "</directAnswer>\n");
+            bufferedWriter.write("<school1>" + competitionMatch.getSchool1Name() + "</school1\n");
+            bufferedWriter.write("<school2>" + competitionMatch.getSchool2Name() + "</school2\n");
+            bufferedWriter.write("<school1_current_score>" + competitionMatch.getScore1() + "</school1_current_score>\n");
+            bufferedWriter.write("<school2_current_score>" + competitionMatch.getScore2() + "</school2_current_score>\n");
+            bufferedWriter.write("</root>");
+            bufferedWriter.close();
+        } catch (IOException ex) {
+            System.out.println("Error: " + ex.getMessage());
+        }
+
+    }
+
+    public String getResult() {
+        return result;
+    }
+
+    public void delete(CompetitionMatch competitionMatch) {
+        this.competitionMatch = competitionMatch;
+        competitionMatchFacade.remove(competitionMatch);
     }
 
     public String edit(CompetitionMatch competitionMatch) {
         this.competitionMatch = competitionMatch;
-        return "edit";
-    }
-
-    public String goIndex() {
-        return "index";
+        return "edit?faces-redirect=true";
     }
 
     public void edit() {
         competitionMatchFacade.edit(competitionMatch);
     }
 
-    public String delete(CompetitionMatch competitionMatch) {
-        this.competitionMatch = competitionMatch;
-        competitionMatchFacade.remove(competitionMatch);
-        flushMatch();
-        FacesContext.getCurrentInstance()
-                .addMessage(null, new FacesMessage("Match deleted."));
-        return "list";
+    public List<CompetitionMatch> getCompetitionMatches() {
+        return competitionMatchFacade.findCompetitionMatchSorted();
     }
 
-    public List<CompetitionMatch> getCompetitions() {
-        return competitionMatchFacade.findAll();
+    public CompetitionMatch findCompetitionMatch(Long id) {
+        return competitionMatchFacade.find(id);
     }
 
     public CompetitionMatch getCompetitionMatch() {
         return competitionMatch;
     }
 
-    public CompetitionMatch findCompetitionMatch(Long id) {
-        return competitionMatchFacade.find(id);
+    public Question getQuestion() {
+        return question;
+    }
+
+    public List<Question> getQuestions() {
+        return questions;
     }
 
     public SelectItem[] getItemsAvailableSelectMany() {
@@ -115,16 +185,7 @@ public class MatchController implements Serializable {
 
     public SelectItem[] getItemsAvailableSelectOne() {
         return JsfUtil.getSelectItems(competitionMatchFacade.findAll(), true);
-    }
 
-    private void flushMatch() {
-        competitionMatch.setId(null);
-        competitionMatch.setEpisodeId(new Episode());
-        competitionMatch.setSchool1Name(new School(""));
-        competitionMatch.setSchool2Name(new School(""));
-        competitionMatch.setScore1(null);
-        competitionMatch.setScore2(null);
-        competitionMatch.setStatus(0);
     }
 
     @FacesConverter(forClass = CompetitionMatch.class)

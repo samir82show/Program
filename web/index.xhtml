@@ -9,8 +9,6 @@
     <h:body>
 
         <f:view>
-
-
             <h:form>
                 <h1><h:outputText value="Create/Edit"/></h1>
                 <h:panelGrid columns="2">
@@ -32,14 +30,11 @@
                     <h:selectOneMenu id="school2Name" value="#{matchController.competitionMatch.school2Name}" title="School2Name" >
                         <f:selectItems value="#{schoolController.itemsAvailableSelectOne}"/>
                     </h:selectOneMenu>
-                    <h:commandButton value="Start" action="#{matchController.create()}"/>
+                    <h:commandButton value="Start" action="#{matchController.startMatch()}"/>
                 </h:panelGrid>
             </h:form>
-            <h:link value="List Competitions" outcome="list"/><br />
-            <h:link value="newjsf" outcome="newjsf"/>
+            <h:link outcome="list" value="List All Competitions"/><br />
         </f:view>
-
-
     </h:body>
 </html>
 
